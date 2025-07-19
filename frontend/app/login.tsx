@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
 import axios from 'axios';
 import { 
     View, 
@@ -9,47 +10,31 @@ import {
     TextInput,
     Pressable
 } from 'react-native';
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
-
 
 function signInFunc() {
-    return 0
+    console.log('kayıt olma butonuna basıldı.')
 }
 
 export default function Login() {
     const [email, onChangeMail] = React.useState('');
     const [password, onChangePassword] = React.useState('');
     const [message, setMessage] = React.useState('');
+    const router = useRouter();
 
     // Login requesti.
-    const login = async () => {
-      console.log('giris yapıldı')
-      console.log(email)
-      console.log(password)
+    async function login() {
       try {
-        const res = await axios.post('http://localhost:3000/login', {
-          email,
-          password
-        });
+        let res = await axios.post('http://localhost:3000/login',{ email, password: password });
         if (res.data.success) {
-          setMessage('Giriş başarılı!');
-          // burada token falan kaydedebilirsin
-        } else {
-          setMessage(res.data.message);
-        }
-      } catch (err: any) {
-        if (err.response && err.response.data) {
-          setMessage(err.response.data.message);
-        } else {
-          setMessage('Sunucuya bağlanırken hata oluştu');
-        }
+          router.replace('/posts');    // lower-case: dosya ismiyle eşleşecek
+        } else setMessage(res.data.message);
+      } catch {
+        setMessage('Sunucu hatası');
       }
-    };
+    }
 
     return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-
+      <View style={styles.container}>
         <TextInput
           style={styles.input}
           onChangeText={onChangeMail}
@@ -92,9 +77,7 @@ export default function Login() {
             <Text>Kayıt Ol</Text>
         </Pressable>
         {message ? <Text style={{ marginTop:10 }}>{message}</Text> : null}
-      </SafeAreaView>
-    </SafeAreaProvider>
-      
+      </View>
     );
   }
 

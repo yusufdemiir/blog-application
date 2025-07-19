@@ -1,11 +1,5 @@
-import React from 'react';
-import { SafeAreaView } from 'react-native';
-import PostFetcher from './screens/PostsScreen';
-import LoginScreen from './screens/login';
-export default function App() {
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LoginScreen/>
-    </SafeAreaView>
-  );
+import { Redirect } from 'expo-router'
+
+export default function Root() {
+  return <Redirect href="/login" />
 }

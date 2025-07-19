@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Button, ScrollView, StyleSheet } from 'react-native';
 import axios from 'axios';
 
+
 interface Post {
     id: number
     title: string
@@ -10,20 +11,14 @@ interface Post {
     createdAt: string
   }
 
-export default function PostsScreen() {
+export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([])
   const [error, setError] = useState<string>('');
 
-  const fetchPosts = async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/posts'); // ← IP'yi gerekirse değiştir
-      setPosts(response.data);
-      setError('');
-    } catch (err) {
-      setError('Veriler alınamadı.');
-      console.log(err);
-    }
-  };
+  async function fetchPosts() {
+    let res = await axios.get('http://localhost:3000/posts');
+    setPosts(res.data);
+  }
 
   return (
     <View style={styles.container}>
