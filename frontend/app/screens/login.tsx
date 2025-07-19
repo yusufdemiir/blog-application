@@ -11,16 +11,40 @@ import {
 } from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
-function loginFunc() {
-    return 0
-}
+
 function signInFunc() {
     return 0
 }
 
 export default function Login() {
-    const [mail, onChangeMail] = React.useState('');
+    const [email, onChangeMail] = React.useState('');
     const [password, onChangePassword] = React.useState('');
+    const [message, setMessage] = React.useState('');
+
+    // Login requesti.
+    const login = async () => {
+      console.log('giris yapıldı')
+      console.log(email)
+      console.log(password)
+      try {
+        const res = await axios.post('http://localhost:3000/login', {
+          email,
+          password
+        });
+        if (res.data.success) {
+          setMessage('Giriş başarılı!');
+          // burada token falan kaydedebilirsin
+        } else {
+          setMessage(res.data.message);
+        }
+      } catch (err: any) {
+        if (err.response && err.response.data) {
+          setMessage(err.response.data.message);
+        } else {
+          setMessage('Sunucuya bağlanırken hata oluştu');
+        }
+      }
+    };
 
     return (
     <SafeAreaProvider>
@@ -29,7 +53,7 @@ export default function Login() {
         <TextInput
           style={styles.input}
           onChangeText={onChangeMail}
-          value={mail}
+          value={email}
           placeholder='Email'
           autoCapitalize="none"
           inputMode='email'
@@ -45,7 +69,7 @@ export default function Login() {
         />
         
         <Pressable 
-            onPress={loginFunc} 
+            onPress={login} 
             style={({ pressed }) => [
                 styles.button,
                 pressed
@@ -67,7 +91,7 @@ export default function Login() {
             >
             <Text>Kayıt Ol</Text>
         </Pressable>
-
+        {message ? <Text style={{ marginTop:10 }}>{message}</Text> : null}
       </SafeAreaView>
     </SafeAreaProvider>
       

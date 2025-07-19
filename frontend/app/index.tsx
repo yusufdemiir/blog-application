@@ -5,7 +5,7 @@ import LoginScreen from './screens/login';
 export default function App() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <PostFetcher/>
+      <LoginScreen/>
     </SafeAreaView>
   );
 }

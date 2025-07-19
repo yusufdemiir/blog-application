@@ -4,8 +4,36 @@ const { PrismaClient } = require('./generated/prisma');
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(express.json()); 
+app.use(express.json());   
 
+// LOGIN - Login yapma işlemi.
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Email ve şifre gerekli' });
+  }
+
+  // 1) Kullanıcıyı var mı aranıyor.
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return res
+      .status(401)
+      .json({ success: false, message: 'Kullanıcı bulunamadı' });
+  }
+
+  // 2) Şifre kontrolü
+  const isValid = await bcrypt.compare(password, user.password);
+  if (!isValid) {
+    return res
+      .status(401)
+      .json({ success: false, message: 'Şifre yanlış' });
+  }
+
+  // 3) Başarılı
+  return res.json({ success: true, message: 'Giriş başarılı' });
+});
 
 // CREATE - Yeni post oluşturma endpointi.
 app.post('/posts', async (req, res) => {
