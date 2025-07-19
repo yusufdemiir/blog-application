@@ -28,8 +28,12 @@ export default function Login() {
         if (res.data.success) {
           router.replace('/posts');    // lower-case: dosya ismiyle eşleşecek
         } else setMessage(res.data.message);
-      } catch {
-        setMessage('Sunucu hatası');
+      } catch (err: any) {
+        if (err.response && err.response.data) {
+          setMessage(err.response.data.message);
+        } else {
+          setMessage('Sunucuya bağlanırken hata oluştu');
+        }
       }
     }
 
