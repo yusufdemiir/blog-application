@@ -4,6 +4,8 @@ const { PrismaClient } = require('./generated/prisma');
 const app = express();
 const prisma = new PrismaClient();
 
+//For test commit
+
 app.use(express.json());   
 
 // LOGIN - Login yapma işlemi.
