@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 app.use(express.json());   
 
 // LOGIN - Login yapma işlemi.
-app.post('/login', async (req, res) => {
+app.post('/auth/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res

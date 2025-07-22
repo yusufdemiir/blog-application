@@ -29,6 +29,7 @@ export default function Posts() {
   //Çıkış yapma fonksiyonu
   function signOut() {
     router.replace('/login')
+    console.log('Çıkış yapıldı.')
   }
 
   return (

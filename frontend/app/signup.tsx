@@ -20,22 +20,26 @@ export default function Signup() {
 
     function goLogin() {
       router.replace('/login')
+      console.log('Giriş ekranına geçildi.')
     }
 
     const handleSignUp = async () => {
       setLoading(true);
-      setMessage('null');
+      setMessage('deneme');
       try {
         const res = await signUp({ name: name, email: email, password: password });
         if (res.success) {
-          setMessage('Kullanıcı Oluşturuldu!');
+          setMessage(res.message ?? 'deneme');
+          console.log(res.message)
           router.replace('/login');
         } else {
           setMessage(res.message ?? 'Bilinmeyen hata');
+          console.log(message)
         }
       } catch (error: any) {
         const serverMsg = error?.response?.data?.message;
         setMessage(serverMsg ?? error.message ?? 'Sunucu hatası');
+        console.log(message)
       } finally {
         setLoading(false);
       }
@@ -86,7 +90,7 @@ export default function Signup() {
                   : styles.button,
               ]}
             >
-                <Text>Kayıt Ol</Text>
+                <Text style={{fontWeight:'bold', fontSize: 18}}>Kayıt Ol</Text>
         </Pressable>
 
         <Pressable 
@@ -100,7 +104,6 @@ export default function Signup() {
             >
                 <Text>Giriş Yap</Text>
         </Pressable>
-        {message ? <Text style={{ marginTop:10 }}>{message}</Text> : null}
     </View>
     )
 } 
@@ -116,7 +119,7 @@ const styles = StyleSheet.create({
         backgroundColor: '',
         alignItems: 'center',
         alignContent: 'center',
-        margin: 12,
+        margin: 8,
         borderWidth: 0.8,
         borderColor: '#ccc',
         borderRadius: 5,

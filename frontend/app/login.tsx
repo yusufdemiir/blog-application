@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import { login } from '../services/_auth';
 import { 
     View, 
     Text, 
@@ -13,27 +14,35 @@ export default function Login() {
     const [email, onChangeEMail] = React.useState('');
     const [password, onChangePassword] = React.useState('');
     const [message, setMessage] = React.useState('');
+    const [loading, setLoading]   = useState(false);
     const router = useRouter();
 
-    // Kayıt ol butonu.
+    // Kayıt ol butonu işlevi.
     function signInFunc() {
       router.replace('/signup')
+      console.log('Kayıt ekranına geçildi.')
     }
   
-
     // Login requesti.
-    async function login() {
+    const handleLogin = async () => {
+      setLoading(true);
+      setMessage('');
       try {
-        let res = await axios.post('http://localhost:3000/login',{ email, password: password });
-        if (res.data.success) {
-          router.replace('/posts');    // lower-case: dosya ismiyle eşleşecek
-        } else setMessage(res.data.message);
-      } catch (err: any) {
-        if (err.response && err.response.data) {
-          setMessage(err.response.data.message);
+        const res = await login({ email, password: password});
+        if (res.success) {
+          setMessage(res.message ?? '');
+          console.log(res.message);
+          router.replace('/posts');
         } else {
-          setMessage('Sunucuya bağlanırken hata oluştu');
-        }
+          setMessage(res.message ?? 'Bilinmeyen hata.'); 
+          console.log(res.message)
+        };
+      } catch (error: any) {
+        const serverMsg = error?.responce?.data?.message;
+        setMessage(serverMsg ?? error.message ?? 'Sunucu hatası.');
+        console.log(serverMsg);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -61,7 +70,7 @@ export default function Login() {
         />
         
         <Pressable 
-            onPress={login} 
+            onPress={handleLogin} 
             style={({ pressed }) => [
                 styles.button,
                 pressed
