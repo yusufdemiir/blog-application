@@ -4,22 +4,22 @@ import axios from 'axios';
 import { 
     View, 
     Text, 
-    Button, 
-    ScrollView, 
     StyleSheet,
     TextInput,
     Pressable
 } from 'react-native';
 
-function signInFunc() {
-    console.log('kayıt olma butonuna basıldı.')
-}
-
 export default function Login() {
-    const [email, onChangeMail] = React.useState('');
+    const [email, onChangeEMail] = React.useState('');
     const [password, onChangePassword] = React.useState('');
     const [message, setMessage] = React.useState('');
     const router = useRouter();
+
+    // Kayıt ol butonu.
+    function signInFunc() {
+      router.replace('/signup')
+    }
+  
 
     // Login requesti.
     async function login() {
@@ -39,11 +39,14 @@ export default function Login() {
 
     return (
       <View style={styles.container}>
+
+        <Text style={styles.header}>Giriş Yap</Text>
+
         <TextInput
           style={styles.input}
-          onChangeText={onChangeMail}
+          onChangeText={onChangeEMail}
           value={email}
-          placeholder='Email'
+          placeholder='E-posta'
           autoCapitalize="none"
           inputMode='email'
         />
@@ -51,7 +54,7 @@ export default function Login() {
           style={styles.input}
           onChangeText={onChangePassword}
           value={password}
-          placeholder="Password"
+          placeholder="Şifre"
           autoCapitalize="none"
           secureTextEntry={true}
           textContentType="password"
@@ -66,7 +69,7 @@ export default function Login() {
                   : styles.button,
               ]}
             >
-                <Text>Giriş Yap</Text>
+                <Text style={{fontWeight:'bold', fontSize: 15}}>Giriş Yap</Text>
         </Pressable>
 
         <Pressable 
@@ -76,7 +79,8 @@ export default function Login() {
                 pressed
                   ? styles.buttonPressed
                   : styles.button,
-              ]}
+              ]
+              }
             >
             <Text>Kayıt Ol</Text>
         </Pressable>
@@ -96,11 +100,11 @@ export default function Login() {
       backgroundColor: '',
       alignItems: 'center',
       alignContent: 'center',
-      margin: 12,
+      margin: 8,
       borderWidth: 0.8,
       borderColor: '#ccc',
       borderRadius: 5,
-      padding: 5
+      padding: 5,
     },
     buttonPressed: {
       backgroundColor: 'rgb(210, 230, 255)'
@@ -116,4 +120,9 @@ export default function Login() {
         padding: 10,
         alignSelf: 'center'
       },
+      header: {
+        fontSize: 35,
+        fontWeight: 'bold',
+        margin: 30
+      }
   })

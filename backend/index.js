@@ -83,13 +83,24 @@ app.post('/auth/signup', async (req, res) => {
 
     // Alanlar dolu olmak zorunda
     if (!name || !email || !password) {
-      return res.status(400).json({ error: 'name, email ve password zorunlu.' })
+      return res.status(400).json({ 
+        success: false,
+        message: 'Kullanıcı adı, email ve şifre zorunludur.', })
+    }
+
+    const nameExisting = await prisma.user.findUnique({ where: { name } })
+    if (nameExisting) {
+      return res.status(409).json({ 
+        success: false,
+        message: 'Bu kullanıcı adı zaten kullanımda. Farklı bir tane deneyiniz.' })
     }
 
     // Önceden kayıtlı mı kontrolü
-    const existing = await prisma.user.findUnique({ where: { email } })
-    if (existing) {
-      return res.status(409).json({ error: 'Bu e-posta zaten kullanımda.' })
+    const mailExisting = await prisma.user.findUnique({ where: { email } })
+    if (mailExisting) {
+      return res.status(409).json({ 
+        success: false,
+        message: 'Bu e-posta zaten kullanımda.' })
     }
 
     // Şifre Hashleme
@@ -109,11 +120,14 @@ app.post('/auth/signup', async (req, res) => {
         createdAt: true,
       }
     })
-
-    return res.status(201).json(user)
+    return res.status(201).json({
+      success: true,
+      message: 'Kullanıcı Oluşturuldu.',
+      user
+    })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ error: 'Sunucu hatası.' })
+    return res.status(500).json({ success: false, message: 'Sunucu hatası.' })
   }
 })
 
