@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { useRouter } from 'expo-router';
-import axios from 'axios';
-import { login } from '../services/_auth';
+import { login } from '../../services/_auth';
+import * as SecureStore from 'expo-secure-store';
 import { 
     View, 
     Text, 
@@ -9,30 +8,32 @@ import {
     TextInput,
     Pressable
 } from 'react-native';
+import { RootStackParamList } from '../navigation/RootNavigator';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-export default function Login() {
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+
+export default function Login({ navigation }: Props) {
     const [email, onChangeEMail] = React.useState('');
     const [password, onChangePassword] = React.useState('');
     const [message, setMessage] = React.useState('');
-    const [loading, setLoading]   = useState(false);
-    const router = useRouter();
 
     // Kayıt ol butonu işlevi.
-    function signInFunc() {
-      router.replace('/signup')
+    function signUpFunc() {
+      navigation.replace('SignUp');
       console.log('Kayıt ekranına geçildi.')
     }
   
     // Login requesti.
     const handleLogin = async () => {
-      setLoading(true);
       setMessage('');
       try {
         const res = await login({ email, password: password});
         if (res.success) {
           setMessage(res.message ?? '');
           console.log(res.message);
-          router.replace('/posts');
+          await SecureStore.setItemAsync('accessToken', res.token);
+          navigation.replace('MainTabs');
         } else {
           setMessage(res.message ?? 'Bilinmeyen hata.'); 
           console.log(res.message)
@@ -42,7 +43,6 @@ export default function Login() {
         setMessage(serverMsg ?? error.message ?? 'Sunucu hatası.');
         console.log(serverMsg);
       } finally {
-        setLoading(false);
       }
     }
 
@@ -82,7 +82,7 @@ export default function Login() {
         </Pressable>
 
         <Pressable 
-            onPress={signInFunc} 
+            onPress={signUpFunc} 
             style={({ pressed }) => [
                 styles.button,
                 pressed

@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { useRouter } from 'expo-router';
 import { View, Text, Button, ScrollView, StyleSheet, Pressable } from 'react-native';
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/RootNavigator';
 
+type RootNav = NativeStackNavigationProp<RootStackParamList>;
 
 interface Post {
     id: number
@@ -12,23 +16,37 @@ interface Post {
     createdAt: string
   }
 
-
-
+  
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([])
   const [error, setError] = useState<string>('');
-  const router = useRouter();
 
+  const navigation = useNavigation<RootNav>();
 
   // Postları getirme requesti.
   async function fetchPosts() {
-    let res = await axios.get('http://localhost:3000/posts');
-    setPosts(res.data);
+    try {
+      const token = await SecureStore.getItemAsync('accessToken');
+      const res = await axios.get('http://localhost:3000/posts', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPosts(res.data);
+      setError('');
+    } catch (err) {
+      setError('Veriler alınamadı.');
+      console.log(err);
+    }
   }
 
   //Çıkış yapma fonksiyonu
-  function signOut() {
-    router.replace('/login')
+  async function signOut() {
+    await SecureStore.deleteItemAsync('accessToken');
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      })
+    );
     console.log('Çıkış yapıldı.')
   }
 

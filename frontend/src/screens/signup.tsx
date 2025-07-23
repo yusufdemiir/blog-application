@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useRouter } from 'expo-router';
 import { 
     View, 
     Text, 
@@ -7,19 +6,22 @@ import {
     TextInput,
     Pressable
 } from 'react-native';
+import { signUp } from '../../services/_auth';
+import axios from 'axios';
+import { RootStackParamList } from '../navigation/RootNavigator';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { signUp } from '../services/_auth';
+type Props = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
-export default function Signup() {
+export default function SignUp({ navigation }: Props) {
     const [name, onChangeText] = React.useState('');
     const [email, onChangeEMail] = React.useState('');
     const [password, onChangePassword] = React.useState('');
     const [message, setMessage] = React.useState('');
     const [loading, setLoading]   = useState(false);
-    const router = useRouter();
 
     function goLogin() {
-      router.replace('/login')
+      navigation.replace('Login');
       console.log('Giriş ekranına geçildi.')
     }
 
@@ -31,7 +33,7 @@ export default function Signup() {
         if (res.success) {
           setMessage(res.message ?? 'deneme');
           console.log(res.message)
-          router.replace('/login');
+          navigation.replace('Login');
         } else {
           setMessage(res.message ?? 'Bilinmeyen hata');
           console.log(message)

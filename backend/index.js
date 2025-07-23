@@ -1,10 +1,27 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const express = require('express');
 const { PrismaClient } = require('./generated/prisma');
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(express.json());   
+app.use(express.json());
+
+// Token doğrulama.
+function authToken(req, res, next) {
+  const authHeader = req.headers.authorization 
+  const token =  authHeader && authHeader.split(' ')[1]
+  if (token == null) return res.sendStatus(401).json({ message: 'Token gerekli.'})
+
+    try {
+      const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+      req.user = payload;
+      next();
+    } catch (err) {
+      console.error('JWT verify error:', err.message);
+      return res.status(403).json({ message: 'Geçersiz veya süresi dolmuş token' });
+    }
+}
 
 // LOGIN - Login yapma işlemi.
 app.post('/auth/login', async (req, res) => {
@@ -32,12 +49,27 @@ app.post('/auth/login', async (req, res) => {
   }
 
   // 3) Başarılı
-  return res.json({ success: true, message: 'Giriş başarılı' });
+
+  // Access token oluşrma
+  const userInfo = await prisma.user.findUnique({ 
+    where: { email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    }
+  })
+  const accessToken = jwt.sign(
+    userInfo,
+    process.env.JWT_ACCESS_SECRET,
+  )
+
+  return res.json({ success: true, message: 'Giriş başarılı', token: accessToken });
 });
 
 // CREATE - Yeni post oluşturma endpointi.
 app.post('/posts', async (req, res) => {
-  const { title, content } = req.body;
+  const { token, title, content,  } = req.body;
   const post = await prisma.post.create({
     data: {
       title,
@@ -51,7 +83,7 @@ app.post('/posts', async (req, res) => {
 });
 
 // READ - Tüm postları getir
-app.get('/posts', async (req, res) => {
+app.get('/posts', authToken, async (req, res) => {
   const posts = await prisma.post.findMany();
   res.json(posts);
 });
