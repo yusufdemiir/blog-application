@@ -1,24 +1,35 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
     View, 
     Text, 
     StyleSheet,
     TextInput,
-    Pressable
+    Pressable,
+    Alert
 } from 'react-native';
 import { signUp } from '../../services/_auth';
-import axios from 'axios';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
+function alert(baslik: string, mesaj: string, button: string) {
+  Alert.alert(
+    baslik,
+    mesaj,
+    [
+      {
+        text: button,
+      },
+    ],
+    { cancelable: false }
+  );
+}
+
 export default function SignUp({ navigation }: Props) {
     const [name, onChangeText] = React.useState('');
     const [email, onChangeEMail] = React.useState('');
     const [password, onChangePassword] = React.useState('');
-    const [message, setMessage] = React.useState('');
-    const [loading, setLoading]   = useState(false);
 
     function goLogin() {
       navigation.replace('Login');
@@ -26,24 +37,22 @@ export default function SignUp({ navigation }: Props) {
     }
 
     const handleSignUp = async () => {
-      setLoading(true);
-      setMessage('deneme');
       try {
         const res = await signUp({ name: name, email: email, password: password });
         if (res.success) {
-          setMessage(res.message ?? 'deneme');
           console.log(res.message)
           navigation.replace('Login');
+          alert('Başarılı', 'Lütfen giriş yapınız.', 'Giriş Yap');
         } else {
-          setMessage(res.message ?? 'Bilinmeyen hata');
-          console.log(message)
+          console.log(res.message)
+          const errorMsg = res.message ?? 'Bilinmeyen hata';
+          alert('Hata!', errorMsg, 'Tamam');
         }
       } catch (error: any) {
         const serverMsg = error?.response?.data?.message;
-        setMessage(serverMsg ?? error.message ?? 'Sunucu hatası');
-        console.log(message)
+        console.log(serverMsg)
+        alert('Hata!', serverMsg, 'Tamam');
       } finally {
-        setLoading(false);
       }
     };
 

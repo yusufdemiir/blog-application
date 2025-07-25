@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Button, ScrollView, StyleSheet, Pressable } from 'react-native';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootNavigator';
 
@@ -14,6 +14,9 @@ interface Post {
     content?: string
     published: boolean
     createdAt: string
+    user: {
+      name: string;
+    }
   }
 
   
@@ -38,42 +41,24 @@ export default function Posts() {
     }
   }
 
-  //Çıkış yapma fonksiyonu
-  async function signOut() {
-    await SecureStore.deleteItemAsync('accessToken');
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'Login' }],
-      })
-    );
-    console.log('Çıkış yapıldı.')
-  }
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchPosts()
+    }, [])
+  )
+  
 
   return (
     <View style={styles.container}>
-      <Button title="Postları Getir" onPress={fetchPosts} />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
       <ScrollView style={styles.scroll}>
         {posts.map((post, index) => (
           <View key={index} style={styles.post}>
             <Text style={styles.title}>{post.title}</Text>
             <Text>{post.content}</Text>
+            <Text>— {post.user.name}</Text>
           </View>
         ))}
       </ScrollView>
-      
-      <Pressable 
-            onPress={signOut} 
-            style={({ pressed }) => [
-                styles.button,
-                pressed
-                  ? styles.buttonPressed
-                  : styles.button,
-              ]}
-            >
-            <Text>Çıkış Yap</Text>
-      </Pressable>
 
     </View>
   );

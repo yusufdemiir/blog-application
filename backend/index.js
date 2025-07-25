@@ -28,24 +28,24 @@ app.post('/auth/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res
-      .status(400)
-      .json({ success: false, message: 'Email ve şifre gerekli' });
+      .status(200)
+      .json({ success: false, message: 'Email ve şifre gerekli', token: '' });
   }
 
   // 1) Kullanıcıyı var mı aranıyor.
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     return res
-      .status(401)
-      .json({ success: false, message: 'Kullanıcı bulunamadı' });
+      .status(200)
+      .json({ success: false, message: 'Kullanıcı bulunamadı', token: '' });
   }
 
   // 2) Şifre kontrolü
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) {
     return res
-      .status(401)
-      .json({ success: false, message: 'Şifre yanlış' });
+      .status(200)
+      .json({ success: false, message: 'Şifre yanlış', token: '' });
   }
 
   // 3) Başarılı
@@ -68,23 +68,35 @@ app.post('/auth/login', async (req, res) => {
 });
 
 // CREATE - Yeni post oluşturma endpointi.
-app.post('/posts', async (req, res) => {
-  const { token, title, content,  } = req.body;
+app.post('/posts', authToken, async (req, res) => {
+  const { title, content } = req.body;
+  const userId = req.user.id;
+  if (!title || !content) {
+    return res
+      .status(200)
+      .json({ success: false, message: 'Başlık ve içerik alanını doldurmak zorunludur.'});
+  }
   const post = await prisma.post.create({
     data: {
       title,
       content,
       user: {
-        connect: { id: "de50bdf1-63f8-48a0-a399-5e93d85c9271" }
+      connect: { id: userId }
       }
     },
   });
-  res.json(post);
+  res.json({success: true, message: 'Post oluşturuldu.', post});
 });
 
 // READ - Tüm postları getir
 app.get('/posts', authToken, async (req, res) => {
-  const posts = await prisma.post.findMany();
+  const posts = await prisma.post.findMany({
+    include: {
+      user: {
+        select: { name: true }
+      }
+    }
+  });
   res.json(posts);
 });
 

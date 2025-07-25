@@ -6,17 +6,32 @@ import {
     Text, 
     StyleSheet,
     TextInput,
-    Pressable
+    Pressable,
+    Alert
 } from 'react-native';
 import { RootStackParamList } from '../navigation/RootNavigator';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
+
+
+function alert(baslik: string, mesaj: string, button: string) {
+  Alert.alert(
+    baslik,            // Başlık
+    mesaj, // Mesaj
+    [
+      {
+        text: button,           // Buton yazısı
+      },
+    ],
+    { cancelable: false }        // Dışarı tıklayınca kapansın mı? (Android)
+  );
+}
+
 export default function Login({ navigation }: Props) {
     const [email, onChangeEMail] = React.useState('');
     const [password, onChangePassword] = React.useState('');
-    const [message, setMessage] = React.useState('');
 
     // Kayıt ol butonu işlevi.
     function signUpFunc() {
@@ -26,22 +41,22 @@ export default function Login({ navigation }: Props) {
   
     // Login requesti.
     const handleLogin = async () => {
-      setMessage('');
       try {
         const res = await login({ email, password: password});
         if (res.success) {
-          setMessage(res.message ?? '');
           console.log(res.message);
           await SecureStore.setItemAsync('accessToken', res.token);
           navigation.replace('MainTabs');
         } else {
-          setMessage(res.message ?? 'Bilinmeyen hata.'); 
+          const errorMsg = res.message ?? 'Bilinmeyen hata.';
           console.log(res.message)
+          alert('Hata', errorMsg, 'Tamam')
         };
       } catch (error: any) {
         const serverMsg = error?.responce?.data?.message;
-        setMessage(serverMsg ?? error.message ?? 'Sunucu hatası.');
         console.log(serverMsg);
+        const msg = serverMsg;
+        alert('Hata', 'Yeniden deneyiniz.', 'Tamam')
       } finally {
       }
     }
@@ -93,7 +108,6 @@ export default function Login({ navigation }: Props) {
             >
             <Text>Kayıt Ol</Text>
         </Pressable>
-        {message ? <Text style={{ marginTop:10 }}>{message}</Text> : null}
       </View>
     );
   }
