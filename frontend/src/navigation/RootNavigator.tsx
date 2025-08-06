@@ -3,12 +3,19 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainTabs from './MainTabs';
 import Login from '../screens/login';
 import SignUp from '../screens/signup'
+import PostDetail from '../screens/post_details'
 
 // Stack param tipleri
 export type RootStackParamList = {
     Login: undefined;
     SignUp: undefined;
     MainTabs: undefined;
+    PostDetail: { 
+      id: number;
+      title: string;
+      content?: string;
+      author: string;
+     };
   };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -19,6 +26,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen name="PostDetail" component={PostDetail} options={{ headerShown: true }} />
     </Stack.Navigator>
   );
 }

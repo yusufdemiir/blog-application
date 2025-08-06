@@ -9,6 +9,10 @@ import {
   Pressable,
   Alert
 } from 'react-native';
+import { RootStackParamList } from '../navigation/RootNavigator';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 function alert(baslik: string, mesaj: string, button: string) {
   Alert.alert(
@@ -23,7 +27,7 @@ function alert(baslik: string, mesaj: string, button: string) {
   );
 }
 
-export default function CreateScreen() {
+export default function CreateScreen({ navigation }: Props) {
   const [title, onHeaderChange] = React.useState('');
   const [content, onContentChange] = React.useState('');
 
@@ -34,6 +38,7 @@ export default function CreateScreen() {
       if (res.success) {
         console.log(res.message)
         alert('Başarılı', 'Postunuz oluşturuldu.', 'Tamam');
+        navigation.replace('MainTabs')
       } else {
         console.log(res.message)
         console.log('burası')
@@ -51,7 +56,7 @@ export default function CreateScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Oluşturma Ekranı</Text>
+      <Text style={styles.text}>Post Yayınla</Text>
       <Text>Başlık</Text>
         <TextInput
           style={styles.input}

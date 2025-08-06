@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, Button, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, StatusBar } from 'react-native';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootNavigator';
+import { PostsStackParamList } from '../navigation/Posts';
 
 type RootNav = NativeStackNavigationProp<RootStackParamList>;
+type Props = NativeStackNavigationProp<PostsStackParamList, 'PostsList'>;
 
 interface Post {
     id: number
@@ -50,17 +52,28 @@ export default function Posts() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scroll}>
-        {posts.map((post, index) => (
-          <View key={index} style={styles.post}>
-            <Text style={styles.title}>{post.title}</Text>
-            <Text>{post.content}</Text>
-            <Text>— {post.user.name}</Text>
-          </View>
-        ))}
-      </ScrollView>
-
+      <StatusBar barStyle="light-content" backgroundColor="#6200ee" />
+      <ScrollView>
+      {posts.map((p) => (
+        <Pressable
+          key={p.id}
+          onPress={() =>
+            navigation.navigate('PostDetail', {
+              id: p.id,
+              title: p.title,
+              content: p.content,
+              author: p.user.name,
+            })
+          }
+          style={styles.post}
+        >
+          <Text style={styles.title}>{p.title}</Text>
+          <Text>- {p.user.name} -</Text>
+        </Pressable>
+      ))}
+    </ScrollView>
     </View>
+    
   );
 }
 
@@ -69,13 +82,31 @@ const styles = StyleSheet.create({
     flex: 1, 
     padding: 16, 
     marginTop: 40,
-    alignItems: 'center',
-    justifyContent: 'center'  
+    
   },
-  scroll: { marginTop: 16 },
-  post: { marginBottom: 16, padding: 10, backgroundColor: '#eee', borderRadius: 6 },
-  title: { fontWeight: 'bold', fontSize: 16 },
-  error: { color: 'red', marginTop: 8 },
+  scroll: { 
+    marginTop: 16,
+    width: '100%'
+
+  },
+  post: { 
+    marginBottom: 16, 
+    padding: 9, 
+    backgroundColor: '#eee', 
+    borderRadius: 6, 
+    height: 100,
+    width: '100%'
+  },
+  title: { 
+    fontWeight: 'bold', 
+    fontSize: 16, 
+    alignSelf: 'stretch',
+    marginBottom: 5
+  },
+  error: { 
+    color: 'red', 
+    marginTop: 8 
+  },
   button: {
     backgroundColor: '',
     alignItems: 'center',
